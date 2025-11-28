@@ -1,25 +1,49 @@
-// Split each paragraph into spans
-document.querySelectorAll('.reveal-text').forEach(text => {
-  const letters = text.innerText.split('');
-  text.innerHTML = ''; 
+const sentences = [
+  "APPLE",
+  "I WENT TO SCHOOL",
+  "TODAY WAS A GOOD DAY"
+];
 
-  letters.forEach((letter, i) => {
-    const span = document.createElement('span');
+let currentIndex = 0;
+const container = document.querySelector("#text-container");
+
+// Function to morph text
+function morphText(nextIndex) {
+  const current = sentences[currentIndex].split("");
+  const next = sentences[nextIndex].split("");
+
+  container.innerHTML = ""; // clear container
+
+  next.forEach((letter, i) => {
+    const span = document.createElement("span");
     span.textContent = letter;
-    span.style.transitionDelay = (i * 0.02) + "s"; // adjust speed here
-    text.appendChild(span);
+
+    // Start new letters slightly right and invisible
+    span.style.opacity = 0;
+    span.style.transform = "translateX(50px)";
+    container.appendChild(span);
+
+    setTimeout(() => {
+      span.style.transition = "all 0.5s ease";
+      span.style.opacity = 1;
+      span.style.transform = "translateX(0)";
+    }, i * 50);
   });
+
+  currentIndex = nextIndex;
+}
+
+// Scroll trigger: morph when you scroll past certain positions
+window.addEventListener("scroll", () => {
+  const scrollY = window.scrollY;
+
+  if (scrollY > 100 && currentIndex === 0) {
+    morphText(1);
+  }
+  if (scrollY > 300 && currentIndex === 1) {
+    morphText(2);
+  }
 });
 
-// Reveal letters when section is visible
-const observer = new IntersectionObserver(entries => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.querySelectorAll('span').forEach(span => {
-        span.classList.add('visible');
-      });
-    }
-  });
-}, { threshold: 0.2 });
-
-document.querySelectorAll('.reveal-text').forEach(el => observer.observe(el));
+// Initialize first sentence
+morphText(0);
